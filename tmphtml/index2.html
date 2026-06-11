@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地震国际标准管理平台 - 响应式前台</title>
+    <style>
+        :root {
+            /* 采用最新图片的浅色系（淡天蓝与高级蓝灰色调） */
+            --primary-color: #2b5c8f;    /* 核心文字与重要按钮的学术蓝 */
+            --secondary-color: #3b82f6;  /* 科技蓝 */
+            --bg-color: #f4f8fc;         /* 全局背景改为淡淡的浅天蓝灰 */
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --star-color: #f59e0b;
+            --header-bg: linear-gradient(to bottom, #e0f2fe 0%, #f0fdf4 100%); /* 页头的微渐变天蓝色 */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        /* 新版页头设计（浅色大方、内嵌纯净版地震仪Logo） */
+        header {
+            background: linear-gradient(180deg, #e3effd 0%, #f4f8fc 100%);
+            color: var(--primary-color);
+            padding: 2rem 1rem;
+            border-bottom: 1px solid rgba(43, 92, 143, 0.1);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        /* 纯 CSS 矢量绘制无字母地震仪（Seismograph）Logo */
+        .seismograph-logo {
+            width: 130px;
+            height: 110px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 地球外圈及经纬线模拟 */
+        .logo-globe {
+            width: 76px;
+            height: 76px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            opacity: 0.8;
+        }
+        .logo-globe::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 25%; width: 50%; height: 100%;
+            border-left: 1px solid var(--primary-color);
+            border-right: 1px solid var(--primary-color);
+            border-radius: 50%;
+        }
+        .logo-globe::after {
+            content: '';
+            position: absolute;
+            top: 25%; left: 0; width: 100%; height: 50%;
+            border-top: 1px solid var(--primary-color);
+            border-bottom: 1px solid var(--primary-color);
+            border-radius: 50%;
+        }
+
+        /* 贯穿地球的横向地震波心电图线 */
+        .logo-wave {
+            width: 120px;
+            height: 40px;
+            position: absolute;
+            top: 23px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Cpath d='M0,20 L40,20 L45,10 L50,30 L55,0 L60,38 L65,12 L70,25 L75,18 L80,20 L120,20' fill='none' stroke='%232b5c8f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+            z-index: 2;
+        }
+
+        /* 底部的递进台基圆弧槽线 */
+        .logo-base {
+            width: 90px;
+            height: 20px;
+            border-bottom: 3px solid var(--primary-color);
+            border-radius: 50%;
+            position: absolute;
+            bottom: 12px;
+        }
+        .logo-base::after {
+            content: '';
+            position: absolute;
+            bottom: -7px; left: 15px;
+            width: 60px; height: 15px;
+            border-bottom: 2px solid var(--primary-color);
+            border-radius: 50%;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        /* 主体容器 */
+        main {
+            max-width: 1200px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+        }
+
+        /* 搜索与筛选区 */
+        .search-filter-section {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(148, 163, 184, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .search-group {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .search-box {
+            flex: 1;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+            background-color: #fafbfc;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(43, 92, 143, 0.1);
+        }
+
+        /* 统一的主色调搜索按钮 */
+        .btn-search {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background-color 0.2s;
+        }
+
+        .btn-search:hover {
+            background-color: #1e40af;
+        }
+
+        .filter-box select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background-color: #fafbfc;
+            outline: none;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        /* 工具栏（排序选项卡） */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.25rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .tab-item {
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tab-item.active {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .doc-count {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* 文档列表样式 */
+        .doc-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .doc-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(148, 163, 184, 0.03);
+        }
+
+        .doc-card:hover {
+            border-color: rgba(43, 92, 143, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(43, 92, 143, 0.06);
+        }
+
+        .doc-card:active {
+            background-color: #f8fafc;
+        }
+
+        .doc-badge-row {
+            display: flex;
+            gap: 0.4rem;
+            margin-bottom: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .badge-type { background-color: #e0f2fe; color: #0369a1; }
+        .badge-stage { background-color: #fef3c7; color: #d97706; }
+        .badge-code { background-color: #f1f5f9; color: #475569; font-family: monospace; }
+
+        .doc-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.6rem;
+            line-height: 1.4;
+        }
+
+        .doc-meta-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .stars {
+            color: var(--star-color);
+        }
+
+        /* 详情弹窗 Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(2px);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; 
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-wrapper {
+            background: white;
+            width: 100%;
+            height: 90vh; 
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 -10px 25px rgba(0,0,0,0.05);
+        }
+
+        .modal-header {
+            padding: 1.2rem 1rem;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.15rem;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 85%;
+        }
+
+        .modal-close {
+            font-size: 1.8rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 0 0.5rem;
+            line-height: 1;
+        }
+
+        .modal-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; 
+        }
+
+        .details-panel {
+            width: 100%;
+            padding: 1.25rem;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+
+        .detail-item .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            font-weight: bold;
+        }
+
+        .detail-item .value {
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .value-block {
+            background: #f8fafc;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            color: #475569;
+        }
+
+        /* 预览面板 */
+        .preview-panel {
+            width: 100%;
+            padding: 1.25rem;
+            background: #475569;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            min-height: 320px; 
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        .btn-download {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .btn-download:hover { background-color: #059669; }
+
+        .pdf-viewer-mock {
+            flex: 1;
+            background: white;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-muted);
+            min-height: 220px;
+        }
+
+        /* ==========================================================================
+           响应式媒体查询：屏幕大于等于 768px (PC与平板) 自动无缝切换
+           ========================================================================== */
+        @media (min-width: 768px) {
+            header {
+                padding: 1.5rem 2rem;
+            }
+            .header-container {
+                flex-direction: row;
+                justify-content: flex-start;
+                gap: 2rem;
+            }
+            .seismograph-logo {
+                width: 110px;
+                height: 90px;
+            }
+            .logo-globe { width: 64px; height: 64px; }
+            .logo-wave { width: 100px; top: 17px; }
+            .logo-base { width: 76px; bottom: 12px; }
+            .logo-base::after { width: 50px; }
+            
+            .logo-text { text-align: left; font-size: 1.9rem; }
+            main { margin: 2rem auto; }
+            
+            .search-filter-section {
+                flex-direction: row;
+                align-items: center;
+                padding: 1.25rem 1.75rem;
+                gap: 1rem;
+            }
+            .search-group {
+                flex: 1;
+            }
+            .filter-box select {
+                width: 220px;
+            }
+            
+            .doc-meta-row {
+                flex-direction: row;
+                gap: 2rem;
+            }
+            .doc-card { padding: 1.5rem; }
+            .doc-title { font-size: 1.25rem; }
+
+            .modal-overlay {
+                align-items: center;
+            }
+            .modal-wrapper {
+                width: 90%;
+                max-width: 1100px;
+                height: 85vh;
+                border-radius: 12px;
+            }
+            .modal-body {
+                flex-direction: row;
+                overflow: hidden;
+            }
+            .details-panel {
+                width: 48%;
+                overflow-y: auto;
+                border-right: 1px solid var(--border-color);
+                padding: 1.75rem;
+            }
+            .preview-panel {
+                width: 52%;
+                padding: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="seismograph-logo">
+                <div class="logo-globe"></div>
+                <div class="logo-wave"></div>
+                <div class="logo-base"></div>
+            </div>
+            <div class="logo-text">地震国际标准管理平台</div>
+        </div>
+    </header>
+
+    <main>
+        <section class="search-filter-section">
+            <div class="search-group">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索编号、名称、摘要、范围...">
+                </div>
+                <button class="btn-search" onclick="handleSearch()">搜索</button>
+            </div>
+            <div class="filter-box">
+                <select id="stageFilter" onchange="handleFilterChange()">
+                    <option value="">当前阶段</option>
+                    <option value="PWI">PWI</option>
+                    <option value="NP">NP</option>
+                    <option value="WD">WD</option>
+                    <option value="CD">CD</option>
+                    <option value="DIS">DIS</option>
+                    <option value="FDIS">FDIS</option>
+                    <option value="IS">IS</option>
+                </select>
+            </div>
+        </section>
+
+        <div class="toolbar">
+            <div class="tabs">
+                <div class="tab-item active" onclick="switchTab('createTime')">创建时间 ⬇</div>
+                <div class="tab-item" onclick="switchTab('publishDate')">发布日期 ⬇</div>
+            </div>
+            <div class="doc-count">共 <span id="countNum">2</span> 项</div>
+        </div>
+
+        <section class="doc-list" id="docListContainer">
+            <div class="doc-card" onclick="openDetail(1)">
+                <div class="doc-badge-row">
+                    <span class="badge badge-code">ISO 23456</span>
+                    <span class="badge badge-type">IS</span>
+                    <span class="badge badge-stage">DIS</span>
+                </div>
+                <div class="doc-title">建筑结构抗震设计国际标准细则</div>
+                <div class="doc-meta-row">
+                    <div>所属机构: ISO/TC 45 / SC 2 / WG 1</div>
+                    <div>发布日期: 2025-11-12</div>
+                    <div>地震相关度: <span class="stars">★★★★★</span></div>
+                </div>
+            </div>
+
+            <div class="doc-card" onclick="openDetail(2)">
+                <div class="doc-badge-row">
+                    <span class="badge badge-code">ISO 78910</span>
+                    <span class="badge badge-type">TR</span>
+                    <span class="badge badge-stage">PWI</span>
+                </div>
+                <div class="doc-title">地下电缆管道地震断层交叉防灾指南</div>
+                <div class="doc-meta-row">
+                    <div>所属机构: ISO/TC 45 / SC 1</div>
+                    <div>发布日期: 2026-03-01</div>
+                    <div>地震相关度: <span class="stars">★★★☆☆</span></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-wrapper">
+            <div class="modal-header">
+                <h3 id="modalDocTitle">文档详细信息</h3>
+                <button class="modal-close" onclick="closeDetail()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="details-panel">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="label">国际标准编号</div>
+                            <div class="value" id="detCode" style="font-weight: bold; font-family: monospace;">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">国际标准名称</div>
+                            <div class="value" id="detName">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">标准类型 / 当前阶段</div>
+                            <div class="value">
+                                <span id="detType" class="badge badge-type">-</span> / 
+                                <span id="detStage" class="badge badge-stage">-</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">组织架构关系 (标准所属 / SC / WG)</div>
+                            <div class="value" id="detOrg">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">首次发布编号</div>
+                            <div class="value" id="detFirstCode">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">时间记录 (发布日期 / 创建时间)</div>
+                            <div class="value" id="detDates" style="font-size: 0.85rem; color: var(--text-muted);">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">地震相关度</div>
+                            <div class="value stars" id="detStars">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">摘要</div>
+                            <div class="value value-block" id="detSummary">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">范围</div>
+                            <div class="value value-block" id="detScope">-</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="preview-panel">
+                    <div class="preview-header">
+                        <span>附件在线预览 (PDF)</span>
+                        <a href="#" id="downloadBtn" class="btn-download" download>下载附件</a>
+                    </div>
+                    <div class="pdf-viewer-mock" id="pdfViewer">
+                        <p>正在载入 PDF...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 前台自闭环假数据源
+        const mockDatabase = [
+            {
+                id: 1,
+                code: "ISO 23456",
+                name: "建筑结构抗震设计国际标准细则",
+                type: "IS",
+                tc: "ISO/TC 45",
+                sc: "SC 2",
+                wg: "WG 1",
+                summary: "本摘要详细概述了各类多层及高层建筑在遭遇里氏7级以上地震时的应力传导计算模型。提供了最新框架剪力墙结构的柔性系数参数。",
+                scope: "适用于新建民用住宅、大型商业综合体以及生命线工程的抗震防御烈度校核。",
+                publishDate: "2025-11-12",
+                firstCode: "ISO 23456-2018",
+                stage: "DIS",
+                relevance: 5,
+                createTime: "2026-01-10 14:22:05",
+                pdfUrl: "mock_path/building_seismic.pdf"
+            },
+            {
+                id: 2,
+                code: "ISO 78910",
+                name: "地下电缆管道地震断层交叉防灾指南",
+                type: "TR",
+                tc: "ISO/TC 45",
+                sc: "SC 1",
+                wg: "无",
+                summary: "专注于跨越活跃地震断层的地下高压电缆管道布局与动态位移补偿。提出了一种新型伸缩复合型管道接头的设计指标。",
+                scope: "主要针对城市电网升级改造以及跨区域输电主干道的灾害预防指南。",
+                publishDate: "2026-03-01",
+                firstCode: "首次发布",
+                stage: "PWI",
+                relevance: 3,
+                createTime: "2026-03-05 09:11:40",
+                pdfUrl: "mock_path/cable_defense.pdf"
+            }
+        ];
+
+        // 显式搜索逻辑
+        function handleSearch() {
+            const keyword = document.getElementById('searchInput').value;
+            console.log("执行搜索，关键词: ", keyword);
+            // 此处后续可无缝接入向后端 Go 服务的 AJAX / Fetch API 请求
+        }
+
+        // 下拉框精准过滤
+        function handleFilterChange() {
+            const stage = document.getElementById('stageFilter').value;
+            console.log("执行筛选，当前阶段: ", stage);
+        }
+
+        // 切换视图或字段排序
+        function switchTab(sortKey) {
+            const tabs = document.querySelectorAll('.tab-item');
+            tabs[0].classList.toggle('active', sortKey === 'createTime');
+            tabs[1].classList.toggle('active', sortKey === 'publishDate');
+            console.log("排序触发: ", sortKey);
+        }
+
+        // 打开抽屉或弹窗详情并挂载数据
+        function openDetail(id) {
+            const doc = mockDatabase.find(item => item.id === id);
+            if (!doc) return;
+
+            document.getElementById('modalDocTitle').innerText = doc.name;
+            document.getElementById('detCode').innerText = doc.code;
+            document.getElementById('detName').innerText = doc.name;
+            document.getElementById('detType').innerText = doc.type;
+            document.getElementById('detStage').innerText = doc.stage;
+            document.getElementById('detOrg').innerText = `${doc.tc} / ${doc.sc} / ${doc.wg}`;
+            document.getElementById('detFirstCode').innerText = doc.firstCode;
+            document.getElementById('detDates').innerText = `发布日期: ${doc.publishDate} | 系统录入时间: ${doc.createTime}`;
+            document.getElementById('detStars').innerText = "★".repeat(doc.relevance) + "☆".repeat(5 - doc.relevance);
+            document.getElementById('detSummary').innerText = doc.summary;
+            document.getElementById('detScope').innerText = doc.scope;
+            document.getElementById('downloadBtn').href = doc.pdfUrl;
+            
+            // 真实生产环境可将此处替换为标准 iframe: <iframe src="${doc.pdfUrl}" width="100%" height="100%" style="border:none;"></iframe>
+            document.getElementById('pdfViewer').innerHTML = `
+                <div style="text-align:center; padding: 10px;">
+                    <p style="font-size: 26px; margin-bottom:6px;">📄</p>
+                    <p style="font-size: 13px; color: #334155;">[ PDF 在线预览集成区域 ]</p>
+                    <p style="font-size: 11px; opacity:0.6; margin-top: 4px;">关联文件: ${doc.code}.pdf</p>
+                </div>`;
+
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        // 关闭弹窗
+        function closeDetail() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

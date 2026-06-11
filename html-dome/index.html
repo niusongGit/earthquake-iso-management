@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地震国际标准管理平台 - 响应式前台</title>
+    <style>
+        :root {
+            --primary-color: #1e3a8a; /* 深蓝色，代表权威 */
+            --secondary-color: #2563eb; /* 科技蓝 */
+            --bg-color: #f8fafc;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --star-color: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        /* ==========================================================================
+           再次优化后的顶部导航栏（重点：再次饱满提升移动端高度与体量感）
+           ========================================================================== */
+        header {
+            background: linear-gradient(180deg, #e3effd 0%, #f8fafc 100%);
+            color: var(--primary-color);
+            padding: 1.2rem 1rem; /* 再次将手机端的上下内边距由 0.8rem 提升至 1.2rem，大幅增加高度 */
+            border-bottom: 1px solid rgba(30, 58, 138, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: row; 
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.8rem; /* 适当拉开间距，配合高度 */
+        }
+
+        /* 放大手机端的 Logo 尺寸 */
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;  
+            height: 46px; /* 从 38px 放大到 46px，撑起更多纵向高度 */
+            overflow: hidden;
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* 放大手机端的标题文字 */
+        .logo-text {
+            font-size: 1.35rem; /* 字号同步放大，显得更加舒展大气 */
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            color: var(--primary-color);
+            white-space: nowrap;
+        }
+
+        /* 主体容器 */
+        main {
+            max-width: 1200px;
+            margin: 1rem auto;
+            padding: 0 1rem;
+        }
+
+        /* 搜索与筛选区 */
+        .search-filter-section {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-group {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .search-box {
+            flex: 1;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--secondary-color);
+        }
+
+        .btn-search {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0 1.25rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background-color 0.2s;
+        }
+
+        .btn-search:hover {
+            background-color: var(--primary-color);
+        }
+
+        .filter-box select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background-color: white;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .tab-item {
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tab-item.active {
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--secondary-color);
+        }
+
+        .doc-count {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        /* 文档列表样式 */
+        .doc-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .doc-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .doc-card:active {
+            background-color: #f1f5f9; 
+        }
+
+        .doc-badge-row {
+            display: flex;
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .badge-type { background-color: #e0f2fe; color: #0369a1; }
+        .badge-stage { background-color: #fef3c7; color: #d97706; }
+        .badge-code { background-color: #f1f5f9; color: #334155; font-family: monospace; }
+
+        .doc-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .doc-meta-row {
+            display: flex;
+            flex-direction: column; 
+            gap: 0.25rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .stars {
+            color: var(--star-color);
+        }
+
+        /* 详情弹窗 Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; 
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-wrapper {
+            background: white;
+            width: 100%;
+            height: 90vh; 
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 1rem;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80%;
+        }
+
+        .modal-close {
+            font-size: 1.75rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 0 0.5rem;
+        }
+
+        .modal-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column; 
+            overflow-y: auto; 
+        }
+
+        .details-panel {
+            width: 100%;
+            padding: 1rem;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .detail-item .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.15rem;
+            font-weight: bold;
+        }
+
+        .detail-item .value {
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .value-block {
+            background: #f1f5f9;
+            padding: 0.6rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+        }
+
+        .preview-panel {
+            width: 100%;
+            padding: 1rem;
+            background: #475569;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            min-height: 300px; 
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .btn-download {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .btn-download:hover { background-color: #059669; }
+
+        .pdf-viewer-mock {
+            flex: 1;
+            background: white;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-muted);
+            min-height: 200px;
+        }
+
+        /* ==========================================================================
+           平板及桌面 PC 端媒体查询适配（依然保持原本满意的完美样式）
+           ========================================================================== */
+        @media (min-width: 768px) {
+            header {
+                padding: 1rem 2rem; /* PC端恢复原本大气舒适的间距 */
+            }
+            .header-container {
+                gap: 1rem;
+            }
+            .logo-wrapper {
+                width: 48px;  
+                height: 48px;
+            }
+            .logo-text { 
+                font-size: 1.5rem;
+            }
+            main { margin: 2rem auto; }
+            
+            .search-filter-section {
+                flex-direction: row;
+                align-items: center;
+                padding: 1.5rem;
+            }
+            .search-group {
+                flex: 1;
+            }
+            .filter-box select {
+                width: 200px;
+            }
+            
+            .doc-meta-row {
+                flex-direction: row;
+                gap: 1.5rem;
+            }
+            .doc-card { padding: 1.5rem; }
+            .doc-title { font-size: 1.2rem; }
+
+            .modal-overlay {
+                align-items: center;
+            }
+            .modal-wrapper {
+                width: 90%;
+                max-width: 1000px;
+                height: 85vh;
+                border-radius: 12px;
+            }
+            .modal-body {
+                flex-direction: row;
+                overflow: hidden;
+            }
+            .details-panel {
+                width: 45%;
+                overflow-y: auto;
+                border-right: 1px solid var(--border-color);
+                padding: 1.5rem;
+            }
+            .preview-panel {
+                width: 55%;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo-wrapper">
+                <img src="./logo.png" alt="地震国际标准管理平台 Logo" class="logo-img">
+            </div>
+            <div class="logo-text">地震国际标准管理平台</div>
+        </div>
+    </header>
+
+    <main>
+        <section class="search-filter-section">
+            <div class="search-group">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索编号、名称、摘要、范围...">
+                </div>
+                <button class="btn-search" onclick="handleSearch()">搜索</button>
+            </div>
+            <div class="filter-box">
+                <select id="stageFilter" onchange="handleFilterChange()">
+                    <option value="">当前阶段</option>
+                    <option value="PWI">PWI</option>
+                    <option value="NP">NP</option>
+                    <option value="WD">WD</option>
+                    <option value="CD">CD</option>
+                    <option value="DIS">DIS</option>
+                    <option value="FDIS">FDIS</option>
+                    <option value="IS">IS</option>
+                </select>
+            </div>
+        </section>
+
+        <div class="toolbar">
+            <div class="tabs">
+                <div class="tab-item active" onclick="switchTab('createTime')">创建时间 ⬇</div>
+                <div class="tab-item" onclick="switchTab('publishDate')">发布日期 ⬇</div>
+            </div>
+            <div class="doc-count">共 <span id="countNum">2</span> 项</div>
+        </div>
+
+        <section class="doc-list" id="docListContainer">
+            <div class="doc-card" onclick="openDetail(1)">
+                <div class="doc-badge-row">
+                    <span class="badge badge-code">ISO 23456</span>
+                    <span class="badge badge-type">IS</span>
+                    <span class="badge badge-stage">DIS</span>
+                </div>
+                <div class="doc-title">建筑结构抗震设计国际标准细则</div>
+                <div class="doc-meta-row">
+                    <div>所属机构: ISO/TC 45 / SC 2 / WG 1</div>
+                    <div>发布日期: 2025-11-12</div>
+                    <div>地震相关度: <span class="stars">★★★★★</span></div>
+                </div>
+            </div>
+
+            <div class="doc-card" onclick="openDetail(2)">
+                <div class="doc-badge-row">
+                    <span class="badge badge-code">ISO 78910</span>
+                    <span class="badge badge-type">TR</span>
+                    <span class="badge badge-stage">PWI</span>
+                </div>
+                <div class="doc-title">地下电缆管道地震断层交叉防灾指南</div>
+                <div class="doc-meta-row">
+                    <div>所属机构: ISO/TC 45 / SC 1</div>
+                    <div>发布日期: 2026-03-01</div>
+                    <div>地震相关度: <span class="stars">★★★☆☆</span></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-wrapper">
+            <div class="modal-header">
+                <h3 id="modalDocTitle">文档详细信息</h3>
+                <button class="modal-close" onclick="closeDetail()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="details-panel">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="label">国际标准编号</div>
+                            <div class="value" id="detCode" style="font-weight: bold; font-family: monospace;">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">国际标准名称</div>
+                            <div class="value" id="detName">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">标准类型 / 当前阶段</div>
+                            <div class="value">
+                                <span id="detType" class="badge badge-type">-</span> / 
+                                <span id="detStage" class="badge badge-stage">-</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">组织架构关系 (标准所属 / SC / WG)</div>
+                            <div class="value" id="detOrg">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">首次发布编号</div>
+                            <div class="value" id="detFirstCode">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">时间记录 (发布日期 / 创建时间)</div>
+                            <div class="value" id="detDates" style="font-size: 0.85rem; color: var(--text-muted);">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">地震相关度</div>
+                            <div class="value stars" id="detStars">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">摘要</div>
+                            <div class="value value-block" id="detSummary">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">范围</div>
+                            <div class="value value-block" id="detScope">-</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="preview-panel">
+                    <div class="preview-header">
+                        <span>附件在线预览 (PDF)</span>
+                        <a href="#" id="downloadBtn" class="btn-download" download>下载附件</a>
+                    </div>
+                    <div class="pdf-viewer-mock" id="pdfViewer">
+                        <p>正在载入 PDF...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mockDatabase = [
+            {
+                id: 1,
+                code: "ISO 23456",
+                name: "建筑结构抗震设计国际标准细则",
+                type: "IS",
+                tc: "ISO/TC 45",
+                sc: "SC 2",
+                wg: "WG 1",
+                summary: "本摘要详细概述了各类多层及高层建筑在遭遇里氏7级以上地震时的应力传导计算模型。提供了最新框架剪力墙结构的柔性系数参数。",
+                scope: "适用于新建民用住宅、大型商业综合体以及生命线工程的抗震防御烈度校核。",
+                publishDate: "2025-11-12",
+                firstCode: "ISO 23456-2018",
+                stage: "DIS",
+                relevance: 5,
+                createTime: "2026-01-10 14:22:05",
+                pdfUrl: "mock_path/building_seismic.pdf"
+            },
+            {
+                id: 2,
+                code: "ISO 78910",
+                name: "地下电缆管道地震断层交叉防灾指南",
+                type: "TR",
+                tc: "ISO/TC 45",
+                sc: "SC 1",
+                wg: "无",
+                summary: "专注于跨越活跃地震断层的地下高压电缆管道布局与动态位移补偿。提出了一种新型伸缩复合型管道接头的设计指标。",
+                scope: "主要针对城市电网升级改造以及跨区域输电主干道的灾害预防指南。",
+                publishDate: "2026-03-01",
+                firstCode: "首次发布",
+                stage: "PWI",
+                relevance: 3,
+                createTime: "2026-03-05 09:11:40",
+                pdfUrl: "mock_path/cable_defense.pdf"
+            }
+        ];
+
+        function handleSearch() {
+            const keyword = document.getElementById('searchInput').value;
+            console.log("执行搜索，关键词: ", keyword);
+        }
+
+        function handleFilterChange() {
+            const stage = document.getElementById('stageFilter').value;
+            console.log("执行筛选，当前阶段: ", stage);
+        }
+
+        function switchTab(sortKey) {
+            const tabs = document.querySelectorAll('.tab-item');
+            tabs[0].classList.toggle('active', sortKey === 'createTime');
+            tabs[1].classList.toggle('active', sortKey === 'publishDate');
+            console.log("更改排序动作为: ", sortKey);
+        }
+
+        function openDetail(id) {
+            const doc = mockDatabase.find(item => item.id === id);
+            if (!doc) return;
+
+            document.getElementById('modalDocTitle').innerText = doc.name;
+            document.getElementById('detCode').innerText = doc.code;
+            document.getElementById('detName').innerText = doc.name;
+            document.getElementById('detType').innerText = doc.type;
+            document.getElementById('detStage').innerText = doc.stage;
+            document.getElementById('detOrg').innerText = `${doc.tc} / ${doc.sc} / ${doc.wg}`;
+            document.getElementById('detFirstCode').innerText = doc.firstCode;
+            document.getElementById('detDates').innerText = `发布日期: ${doc.publishDate} | 系统录入时间: ${doc.createTime}`;
+            document.getElementById('detStars').innerText = "★".repeat(doc.relevance) + "☆".repeat(5 - doc.relevance);
+            document.getElementById('detSummary').innerText = doc.summary;
+            document.getElementById('detScope').innerText = doc.scope;
+            document.getElementById('downloadBtn').href = doc.pdfUrl;
+            
+            document.getElementById('pdfViewer').innerHTML = `
+                <div style="text-align:center; padding: 10px;">
+                    <p style="font-size: 22px; margin-bottom:4px;">📄</p>
+                    <p style="font-size: 13px;">[PDF 在线预览区域]</p>
+                    <p style="font-size: 11px; opacity:0.6;">文件: ${doc.code}.pdf</p>
+                </div>`;
+
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function closeDetail() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
