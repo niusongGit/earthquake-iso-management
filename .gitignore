@@ -30,5 +30,3 @@ uploads/
 # Config with sensitive data (uncomment if needed)
 # config.json
 
-# Trae skill cache
-.trae/
