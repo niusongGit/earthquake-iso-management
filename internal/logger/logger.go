@@ -87,19 +87,17 @@ func (w *dailyWriter) cleanupLoop() {
 	// 启动时先清理一次
 	w.cleanOldLogs()
 
-	ticker := time.NewTicker(1 * time.Hour)
+	ticker := time.NewTicker(24 * time.Hour)
 	defer ticker.Stop()
 	for range ticker.C {
 		w.cleanOldLogs()
 	}
 }
 
-// cleanOldLogs 删除超过maxAge天的日志文件
+// cleanOldLogs 当日志文件数量超过maxAge个时，删除最早日期的文件
 func (w *dailyWriter) cleanOldLogs() {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-
-	cutoff := time.Now().AddDate(0, 0, -w.maxAge)
 
 	entries, err := os.ReadDir(w.dir)
 	if err != nil {
@@ -118,23 +116,18 @@ func (w *dailyWriter) cleanOldLogs() {
 		files = append(files, name)
 	}
 
-	// 按文件名排序（文件名包含日期，排序后方便处理）
+	// 文件数量不超过maxAge，无需清理
+	if len(files) <= w.maxAge {
+		return
+	}
+
+	// 按文件名排序（文件名包含日期，最早的排最前）
 	sort.Strings(files)
 
-	for _, name := range files {
-		// 从文件名提取日期：app-2024-01-15.log -> 2024-01-15
-		dateStr := strings.TrimPrefix(name, "app-")
-		dateStr = strings.TrimSuffix(dateStr, ".log")
-
-		fileDate, err := time.Parse("2006-01-02", dateStr)
-		if err != nil {
-			continue
-		}
-
-		if fileDate.Before(cutoff) {
-			fullPath := filepath.Join(w.dir, name)
-			os.Remove(fullPath)
-		}
+	// 删除最早的文件，直到数量不超过maxAge
+	for i := 0; i < len(files)-w.maxAge; i++ {
+		fullPath := filepath.Join(w.dir, files[i])
+		os.Remove(fullPath)
 	}
 }
 
