@@ -37,8 +37,8 @@ func (s *DocumentService) GetDocumentList(query model.DocumentListQuery) (*model
 	// 关键词搜索
 	if query.Keyword != "" {
 		keyword := "%" + query.Keyword + "%"
-		db = db.Where("iso_code LIKE ? OR name LIKE ? OR summary LIKE ? OR scope LIKE ?",
-			keyword, keyword, keyword, keyword)
+		db = db.Where("iso_code LIKE ? OR name LIKE ? OR summary LIKE ? OR scope LIKE ? OR type LIKE ? OR standard_belongs_to LIKE ? OR belongs_to LIKE ? OR first_publish_code LIKE ?",
+			keyword, keyword, keyword, keyword, keyword, keyword, keyword, keyword)
 	}
 
 	// 阶段筛选

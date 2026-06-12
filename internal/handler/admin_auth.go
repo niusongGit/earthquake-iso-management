@@ -26,3 +26,25 @@ func AdminLogin(c *gin.Context) {
 
 	response.Success(c, model.LoginResponse{Token: token})
 }
+
+// ChangePassword 修改密码
+func ChangePassword(c *gin.Context) {
+	var req model.ChangePasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "请求参数错误")
+		return
+	}
+
+	adminID := c.GetUint("admin_id")
+	if adminID == 0 {
+		response.Unauthorized(c, "用户信息获取失败")
+		return
+	}
+
+	if err := adminService.ChangePassword(adminID, req); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+
+	response.Success(c, nil)
+}

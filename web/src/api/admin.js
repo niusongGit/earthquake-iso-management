@@ -5,6 +5,11 @@ export function login(data) {
   return request.post('/admin/login', data)
 }
 
+// 修改密码
+export function changePassword(data) {
+  return request.put('/admin/password', data)
+}
+
 // 获取文档列表（后台）
 export function getDocumentList(params) {
   return request.get('/admin/documents', { params })

@@ -27,6 +27,7 @@ func Setup(r *gin.Engine, staticFS fs.FS) {
 		// 需要认证的接口
 		auth := admin.Group("").Use(middleware.AuthRequired())
 		{
+			auth.PUT("/password", handler.ChangePassword)
 			auth.POST("/documents", handler.CreateDocument)
 			auth.GET("/documents", handler.GetAdminDocumentList)
 			auth.GET("/documents/:id", handler.GetAdminDocumentByID)
