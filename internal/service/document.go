@@ -105,7 +105,7 @@ func (s *DocumentService) CreateDocument(req model.DocumentCreateRequest, file *
 
 	// 处理附件上传
 	if file != nil {
-		attachmentPath, err := saveUploadFile(file, doc.ISOCode)
+		attachmentPath, err := saveUploadFile(file)
 		if err != nil {
 			return nil, fmt.Errorf("保存附件失败: %w", err)
 		}
@@ -167,11 +167,7 @@ func (s *DocumentService) UpdateDocument(id uint, req model.DocumentUpdateReques
 
 	// 处理附件上传
 	if file != nil {
-		isoCode := doc.ISOCode
-		if v, ok := updates["iso_code"]; ok {
-			isoCode = v.(string)
-		}
-		attachmentPath, err := saveUploadFile(file, isoCode)
+		attachmentPath, err := saveUploadFile(file)
 		if err != nil {
 			return nil, fmt.Errorf("保存附件失败: %w", err)
 		}
@@ -216,7 +212,7 @@ func (s *DocumentService) DeleteDocument(id uint) error {
 }
 
 // saveUploadFile 保存上传文件
-func saveUploadFile(file *multipart.FileHeader, isoCode string) (string, error) {
+func saveUploadFile(file *multipart.FileHeader) (string, error) {
 	if err := os.MkdirAll("uploads", 0755); err != nil {
 		return "", err
 	}
@@ -229,7 +225,7 @@ func saveUploadFile(file *multipart.FileHeader, isoCode string) (string, error) 
 
 	// 生成文件名：ISO编号_时间戳.扩展名
 	ext := path.Ext(file.Filename)
-	fileName := fmt.Sprintf("%s_%d%s", isoCode, time.Now().UnixMilli(), ext)
+	fileName := fmt.Sprintf("%d%s", time.Now().UnixMilli(), ext)
 	filePath := filepath.Join("uploads", fileName)
 
 	dst, err := os.Create(filePath)

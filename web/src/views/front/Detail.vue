@@ -100,10 +100,12 @@
                 </div>
                 <vue-pdf-embed
                   ref="pdfRef"
-                  :source="previewUrl"
+                  :source="pdfSource"
                   :page="currentPage"
                   @loaded="onPdfLoaded"
                   @rendered="onPdfRendered"
+                  @loading-failed="onPdfLoadingFailed"
+                  @rendering-failed="onPdfRenderingFailed"
                   class="pdf-embed"
                 />
               </div>
@@ -144,6 +146,19 @@ const previewUrl = computed(() => {
   return `/api/front/documents/${doc.value.id}/preview`
 })
 
+const pdfSource = computed(() => {
+  if (!doc.value || !doc.value.attachment) return null
+  const origin = window.location.origin
+  return {
+    url: `${origin}${previewUrl.value}`,
+    wasmUrl: `${origin}/wasm/`,
+    cMapUrl: `${origin}/cmaps/`,
+    standardFontDataUrl: `${origin}/standard_fonts/`,
+    cMapPacked: true,
+    useWasm: false
+  }
+})
+
 function formatDate(dateStr) {
   if (!dateStr) return '-'
   return dateStr.substring(0, 10)
@@ -179,6 +194,28 @@ function onPdfLoaded(pdf) {
 
 function onPdfRendered() {
   // 渲染完成，隐藏加载动画
+  pdfLoading.value = false
+}
+
+function onPdfLoadingFailed(error) {
+  console.error('[PDF] 加载失败:', error)
+  if (error && error.message) {
+    console.error('[PDF] 错误详情:', error.message)
+  }
+  if (error && error.stack) {
+    console.error('[PDF] 堆栈:', error.stack)
+  }
+  pdfLoading.value = false
+}
+
+function onPdfRenderingFailed(error) {
+  console.error('[PDF] 渲染失败:', error)
+  if (error && error.message) {
+    console.error('[PDF] 错误详情:', error.message)
+  }
+  if (error && error.stack) {
+    console.error('[PDF] 堆栈:', error.stack)
+  }
   pdfLoading.value = false
 }
 

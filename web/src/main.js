@@ -6,10 +6,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
 import router from './router'
 
-// 配置 pdfjs worker（vue-pdf-embed 依赖）
-import * as pdfjsLib from 'pdfjs-dist'
-import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
-pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl
+// vue-pdf-embed 内部已打包 pdfjs-dist 并使用内置 base64 worker，无需额外配置
 
 const app = createApp(App)
 
