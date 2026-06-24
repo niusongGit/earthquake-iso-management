@@ -6,6 +6,11 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
 import router from './router'
 
+// 配置 pdfjs worker（vue-pdf-embed 依赖）
+import * as pdfjsLib from 'pdfjs-dist'
+import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl
+
 const app = createApp(App)
 
 // 注册所有图标

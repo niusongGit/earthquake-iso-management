@@ -85,11 +85,29 @@
             >下载附件</el-button>
           </div>
           <div class="pdf-viewer">
-            <iframe
-              v-if="doc.attachment"
-              :src="previewUrl"
-              class="pdf-iframe"
-            ></iframe>
+            <div v-if="doc.attachment" class="pdf-container">
+              <!-- 翻页控制 -->
+              <div class="pdf-toolbar">
+                <el-button size="small" :disabled="currentPage <= 1" @click="prevPage">上一页</el-button>
+                <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+                <el-button size="small" :disabled="currentPage >= totalPages" @click="nextPage">下一页</el-button>
+              </div>
+              <!-- PDF渲染 -->
+              <div class="pdf-canvas-wrapper">
+                <div v-if="pdfLoading" class="pdf-loading-overlay">
+                  <el-icon class="loading-icon"><Loading /></el-icon>
+                  <span>PDF加载中...</span>
+                </div>
+                <vue-pdf-embed
+                  ref="pdfRef"
+                  :source="previewUrl"
+                  :page="currentPage"
+                  @loaded="onPdfLoaded"
+                  @rendered="onPdfRendered"
+                  class="pdf-embed"
+                />
+              </div>
+            </div>
             <div v-else class="pdf-empty">
               <p>暂无附件</p>
             </div>
@@ -104,12 +122,17 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getDocumentDetail } from '../../api/front'
+import VuePdfEmbed from 'vue-pdf-embed'
 
 const route = useRoute()
 const router = useRouter()
 
 const doc = ref(null)
 const loading = ref(false)
+const pdfRef = ref(null)
+const currentPage = ref(1)
+const totalPages = ref(0)
+const pdfLoading = ref(true)
 
 const downloadUrl = computed(() => {
   if (!doc.value) return ''
@@ -142,6 +165,34 @@ function goBack() {
 function handleDownload() {
   if (doc.value && doc.value.attachment) {
     window.open(downloadUrl.value, '_blank')
+  }
+}
+
+function onPdfLoaded(pdf) {
+  // pdf.document 返回 PDFDocumentProxy，可获取总页数
+  if (pdf && pdf.numPages) {
+    totalPages.value = pdf.numPages
+  } else if (pdf && pdf.document && pdf.document.numPages) {
+    totalPages.value = pdf.document.numPages
+  }
+}
+
+function onPdfRendered() {
+  // 渲染完成，隐藏加载动画
+  pdfLoading.value = false
+}
+
+function prevPage() {
+  if (currentPage.value > 1) {
+    pdfLoading.value = true
+    currentPage.value--
+  }
+}
+
+function nextPage() {
+  if (currentPage.value < totalPages.value) {
+    pdfLoading.value = true
+    currentPage.value++
   }
 }
 
@@ -310,13 +361,77 @@ onMounted(() => {
   min-height: 400px;
 }
 
-.pdf-iframe {
-  width: 100%;
+.pdf-container {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+}
+
+.pdf-toolbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  background: #334155;
+  border-radius: 4px 4px 0 0;
+}
+
+.page-info {
+  color: white;
+  font-size: 0.85rem;
+  min-width: 60px;
+  text-align: center;
+}
+
+.pdf-canvas-wrapper {
+  flex: 1;
+  overflow: auto;
+  background: #52525b;
+  border-radius: 0 0 4px 4px;
+  padding: 0.5rem;
+  display: flex;
+  justify-content: center;
+  position: relative;
   min-height: 400px;
-  border: none;
-  border-radius: 4px;
-  background: white;
+}
+
+.pdf-embed {
+  display: flex;
+  justify-content: center;
+}
+
+.pdf-embed :deep(canvas) {
+  max-width: 100%;
+  height: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.pdf-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: #52525b;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  z-index: 10;
+}
+
+.loading-icon {
+  font-size: 2rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .pdf-empty {

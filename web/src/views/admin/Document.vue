@@ -312,10 +312,13 @@ function handleFileChange(file) {
 }
 
 async function handleSubmit() {
-  const valid = await formRef.value.validate().catch(() => false)
-  if (!valid) return
-
   submitLoading.value = true
+  const valid = await formRef.value.validate().catch(() => false)
+  if (!valid) {
+    submitLoading.value = false
+    return
+  }
+
   try {
     const formData = new FormData()
     formData.append('iso_code', form.iso_code.trim())
@@ -345,7 +348,7 @@ async function handleSubmit() {
       dialogVisible.value = false
       loadData()
     } else {
-      ElMessage.error(res.message || '操作失败')
+      ElMessage.error(res.message || '操作失败！')
     }
   } catch (e) {
     ElMessage.error('操作失败')
