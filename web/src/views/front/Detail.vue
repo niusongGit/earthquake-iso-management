@@ -13,7 +13,7 @@
     <main class="main-content" v-loading="loading">
       <!-- 返回按钮 -->
       <div class="back-bar">
-        <el-button text @click="goBack">
+        <el-button type="primary" plain round @click="goBack">
           <el-icon><ArrowLeft /></el-icon> 返回列表
         </el-button>
       </div>
@@ -102,6 +102,7 @@
                   ref="pdfRef"
                   :source="pdfSource"
                   :page="currentPage"
+                  :width="pdfWidth"
                   @loaded="onPdfLoaded"
                   @rendered="onPdfRendered"
                   @loading-failed="onPdfLoadingFailed"
@@ -121,7 +122,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getDocumentDetail } from '../../api/front'
 import VuePdfEmbed from 'vue-pdf-embed'
@@ -135,6 +136,21 @@ const pdfRef = ref(null)
 const currentPage = ref(1)
 const totalPages = ref(0)
 const pdfLoading = ref(true)
+const windowWidth = ref(window.innerWidth)
+
+// 响应式PDF渲染宽度：PC端使用较大宽度，手机端不设置（使用容器宽度）
+const pdfWidth = computed(() => {
+  if (windowWidth.value >= 768) {
+    // PC端：预览面板约占55%宽度，减去内边距后取较大值
+    return Math.min(windowWidth.value * 0.5, 760)
+  }
+  // 手机端：不指定宽度，由组件使用容器clientWidth
+  return undefined
+})
+
+function handleResize() {
+  windowWidth.value = window.innerWidth
+}
 
 const downloadUrl = computed(() => {
   if (!doc.value) return ''
@@ -249,7 +265,12 @@ async function loadDetail() {
 }
 
 onMounted(() => {
+  window.addEventListener('resize', handleResize)
   loadDetail()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 
@@ -301,6 +322,13 @@ onMounted(() => {
 
 .back-bar {
   margin-bottom: 1rem;
+}
+
+.back-bar :deep(.el-button) {
+  font-weight: 600;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
 }
 
 .detail-body {

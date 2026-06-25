@@ -3,7 +3,10 @@ package response
 import (
 	"net/http"
 
+	"earthquake-iso-management/internal/logger"
+
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // Response 统一响应结构
@@ -43,6 +46,21 @@ func SuccessPage(c *gin.Context, list interface{}, total int64, page, pageSize i
 }
 
 func Error(c *gin.Context, httpCode int, message string) {
+	// 记录异常日志：4xx使用Warn级别，5xx使用Error级别
+	if logger.Log != nil {
+		fields := []zap.Field{
+			zap.Int("http_code", httpCode),
+			zap.String("method", c.Request.Method),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("client_ip", c.ClientIP()),
+			zap.String("message", message),
+		}
+		if httpCode >= 500 {
+			logger.Log.Error("接口异常", fields...)
+		} else {
+			logger.Log.Warn("接口异常", fields...)
+		}
+	}
 	c.JSON(httpCode, Response{
 		Code:    httpCode,
 		Message: message,

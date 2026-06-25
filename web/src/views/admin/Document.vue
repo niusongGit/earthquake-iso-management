@@ -470,6 +470,12 @@ onMounted(() => {
   color: #1e293b;
   margin-bottom: 0.5rem;
   line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .card-meta {
