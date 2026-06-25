@@ -19,26 +19,26 @@ func NewAdminService() *AdminService {
 }
 
 // Login 管理员登录
-func (s *AdminService) Login(req model.LoginRequest) (string, error) {
+func (s *AdminService) Login(req model.LoginRequest) (string, model.Admin, error) {
 	var admin model.Admin
 	if err := database.DB.Where("username = ?", req.Username).First(&admin).Error; err != nil {
 		logger.Log.Warn("登录失败：用户不存在", zap.String("username", req.Username))
-		return "", err
+		return "", model.Admin{}, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(req.Password)); err != nil {
 		logger.Log.Warn("登录失败：密码错误", zap.String("username", req.Username))
-		return "", err
+		return "", model.Admin{}, err
 	}
 
 	token, err := middleware.GenerateToken(admin.ID, admin.Username)
 	if err != nil {
 		logger.Log.Error("生成令牌失败", zap.Error(err))
-		return "", err
+		return "", model.Admin{}, err
 	}
 
 	logger.Log.Info("管理员登录成功", zap.String("username", req.Username))
-	return token, nil
+	return token, admin, nil
 }
 
 // ChangePassword 修改密码

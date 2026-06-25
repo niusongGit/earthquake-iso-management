@@ -29,7 +29,7 @@ func Init() error {
 	sqlDB.SetMaxOpenConns(config.C.MySQL.MaxOpenConns)
 
 	// 自动迁移
-	if err := DB.AutoMigrate(&model.Admin{}, &model.Document{}); err != nil {
+	if err := DB.AutoMigrate(&model.Admin{}, &model.Document{}, &model.OperationLog{}); err != nil {
 		return err
 	}
 

@@ -4,6 +4,7 @@ import (
 	"earthquake-iso-management/internal/config"
 	"earthquake-iso-management/internal/database"
 	"earthquake-iso-management/internal/logger"
+	"earthquake-iso-management/internal/middleware"
 	"earthquake-iso-management/internal/router"
 	"embed"
 	"fmt"
@@ -39,7 +40,7 @@ func main() {
 	// 创建Gin引擎
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
-	r.Use(gin.Recovery())
+	r.Use(middleware.Recover())
 
 	// CORS中间件
 	r.Use(func(c *gin.Context) {

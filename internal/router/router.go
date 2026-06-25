@@ -22,10 +22,11 @@ func Setup(r *gin.Engine, staticFS fs.FS) {
 	// 后台API
 	admin := r.Group("/api/admin")
 	{
-		admin.POST("/login", handler.AdminLogin)
+		// 登录接口（无需认证，但需记录操作日志）
+		admin.POST("/login", middleware.OperationLog(), handler.AdminLogin)
 
 		// 需要认证的接口
-		auth := admin.Group("").Use(middleware.AuthRequired())
+		auth := admin.Group("").Use(middleware.AuthRequired(), middleware.OperationLog())
 		{
 			auth.PUT("/password", handler.ChangePassword)
 			auth.POST("/documents", handler.CreateDocument)

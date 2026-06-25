@@ -18,11 +18,15 @@ func AdminLogin(c *gin.Context) {
 		return
 	}
 
-	token, err := adminService.Login(req)
+	token, admin, err := adminService.Login(req)
 	if err != nil {
 		response.Unauthorized(c, "用户名或密码错误")
 		return
 	}
+
+	// 设置管理员信息到上下文，供操作日志中间件记录
+	c.Set("admin_id", admin.ID)
+	c.Set("username", admin.Username)
 
 	response.Success(c, model.LoginResponse{Token: token})
 }
