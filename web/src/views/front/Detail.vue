@@ -138,11 +138,11 @@ const totalPages = ref(0)
 const pdfLoading = ref(true)
 const windowWidth = ref(window.innerWidth)
 
-// 响应式PDF渲染宽度：PC端使用较大宽度，手机端不设置（使用容器宽度）
+// 响应式PDF渲染宽度：PC端使用适中宽度避免纸张过长，手机端不设置（使用容器宽度）
 const pdfWidth = computed(() => {
   if (windowWidth.value >= 768) {
-    // PC端：预览面板约占55%宽度，减去内边距后取较大值
-    return Math.min(windowWidth.value * 0.5, 760)
+    // PC端：控制在适中尺寸，A4纸高度约 560×1.414≈792px
+    return Math.min(windowWidth.value * 0.35, 560)
   }
   // 手机端：不指定宽度，由组件使用容器clientWidth
   return undefined
@@ -457,6 +457,7 @@ onBeforeUnmount(() => {
   padding: 0.5rem;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   position: relative;
   min-height: 400px;
 }
@@ -464,6 +465,7 @@ onBeforeUnmount(() => {
 .pdf-embed {
   display: flex;
   justify-content: center;
+  align-items: flex-start;
 }
 
 .pdf-embed :deep(canvas) {
