@@ -184,7 +184,7 @@ async function handleChangePassword() {
   justify-content: space-between;
   align-items: center;
   padding: 0 1.5rem;
-  height: 60px;
+  height: 76px;
 }
 
 .header-left {
@@ -194,14 +194,17 @@ async function handleChangePassword() {
 }
 
 .logo-wrapper {
-  width: 36px;
-  height: 36px;
-  overflow: hidden;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .logo-img {
-  width: 100%;
-  height: 100%;
+  height: 56px;
+  width: auto;
+  max-width: none;
   object-fit: contain;
 }
 

@@ -37,8 +37,8 @@ func (s *DocumentService) GetDocumentList(query model.DocumentListQuery) (*model
 	// 关键词搜索
 	if query.Keyword != "" {
 		keyword := "%" + query.Keyword + "%"
-		db = db.Where("iso_code LIKE ? OR name LIKE ? OR summary LIKE ? OR scope LIKE ? OR type LIKE ? OR standard_belongs_to LIKE ? OR belongs_to LIKE ? OR first_publish_code LIKE ?",
-			keyword, keyword, keyword, keyword, keyword, keyword, keyword, keyword)
+		db = db.Where("iso_code LIKE ? OR name LIKE ? OR summary LIKE ? OR scope LIKE ? OR type LIKE ? OR standard_belongs_to LIKE ? OR sc LIKE ? OR wg LIKE ? OR first_publish_code LIKE ?",
+			keyword, keyword, keyword, keyword, keyword, keyword, keyword, keyword, keyword)
 	}
 
 	// 阶段筛选
@@ -87,7 +87,8 @@ func (s *DocumentService) CreateDocument(req model.DocumentCreateRequest, file *
 		Name:                req.Name,
 		Type:                req.Type,
 		StandardBelongsTo:   req.StandardBelongsTo,
-		BelongsTo:           req.BelongsTo,
+		SC:                  req.SC,
+		WG:                  req.WG,
 		Summary:             req.Summary,
 		Scope:               req.Scope,
 		FirstPublishCode:    req.FirstPublishCode,
@@ -140,9 +141,8 @@ func (s *DocumentService) UpdateDocument(id uint, req model.DocumentUpdateReques
 	if req.StandardBelongsTo != "" {
 		updates["standard_belongs_to"] = req.StandardBelongsTo
 	}
-	if req.BelongsTo != "" {
-		updates["belongs_to"] = req.BelongsTo
-	}
+	updates["sc"] = req.SC
+	updates["wg"] = req.WG
 	if req.Summary != "" {
 		updates["summary"] = req.Summary
 	}

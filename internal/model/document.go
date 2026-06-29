@@ -11,7 +11,8 @@ type Document struct {
 	Name                string     `json:"name" gorm:"size:255;not null;comment:国际标准名称"`
 	Type                string     `json:"type" gorm:"size:20;not null;comment:标准类型"`
 	StandardBelongsTo   string     `json:"standard_belongs_to" gorm:"size:100;column:standard_belongs_to;comment:标准所属"`
-	BelongsTo           string     `json:"belongs_to" gorm:"size:50;column:belongs_to;comment:所属"`
+	SC                  string     `json:"sc" gorm:"size:50;column:sc;comment:所属SC"`
+	WG                  string     `json:"wg" gorm:"size:50;column:wg;comment:所属WG"`
 	Summary             string     `json:"summary" gorm:"type:text;comment:摘要"`
 	Scope               string     `json:"scope" gorm:"type:text;comment:范围"`
 	PublishDate         *time.Time `json:"publish_date" gorm:"type:date;comment:发布日期"`
@@ -49,7 +50,8 @@ type DocumentCreateRequest struct {
 	Name                string `json:"name" form:"name" binding:"required"`
 	Type                string `json:"type" form:"type" binding:"required"`
 	StandardBelongsTo   string `json:"standard_belongs_to" form:"standard_belongs_to"`
-	BelongsTo           string `json:"belongs_to" form:"belongs_to"`
+	SC                  string `json:"sc" form:"sc"`
+	WG                  string `json:"wg" form:"wg"`
 	Summary             string `json:"summary" form:"summary"`
 	Scope               string `json:"scope" form:"scope"`
 	PublishDate         string `json:"publish_date" form:"publish_date"`
@@ -64,7 +66,8 @@ type DocumentUpdateRequest struct {
 	Name                string `json:"name" form:"name"`
 	Type                string `json:"type" form:"type"`
 	StandardBelongsTo   string `json:"standard_belongs_to" form:"standard_belongs_to"`
-	BelongsTo           string `json:"belongs_to" form:"belongs_to"`
+	SC                  string `json:"sc" form:"sc"`
+	WG                  string `json:"wg" form:"wg"`
 	Summary             string `json:"summary" form:"summary"`
 	Scope               string `json:"scope" form:"scope"`
 	PublishDate         string `json:"publish_date" form:"publish_date"`

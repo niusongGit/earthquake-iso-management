@@ -43,8 +43,12 @@
               <div class="value">{{ doc.standard_belongs_to || '-' }}</div>
             </div>
             <div class="detail-item">
-              <div class="label">所属</div>
-              <div class="value">{{ doc.belongs_to || '-' }}</div>
+              <div class="label">所属SC</div>
+              <div class="value">{{ doc.sc || '-' }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">所属WG</div>
+              <div class="value">{{ doc.wg || '-' }}</div>
             </div>
             <div class="detail-item">
               <div class="label">首次发布编号</div>

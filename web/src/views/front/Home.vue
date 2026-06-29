@@ -82,9 +82,12 @@
             </div>
             <div class="meta-pair">
               <span>首发编号: {{ doc.first_publish_code || '-' }}</span>
-              <span>所属: {{ doc.belongs_to || '-' }}</span>
+              <span>SC: {{ doc.sc || '-' }}</span>
             </div>
-            <div>地震相关度: <span class="stars">{{ getStars(doc.earthquake_relevance) }}</span></div>
+            <div class="meta-pair">
+              <span>WG: {{ doc.wg || '-' }}</span>
+              <span>地震相关度: <span class="stars">{{ getStars(doc.earthquake_relevance) }}</span></span>
+            </div>
           </div>
         </div>
 

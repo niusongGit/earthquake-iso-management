@@ -26,7 +26,12 @@
       <el-table-column prop="name" label="标准名称" min-width="200" show-overflow-tooltip />
       <el-table-column prop="type" label="类型" width="80" align="center" />
       <el-table-column prop="current_stage" label="当前阶段" width="100" align="center" />
-      <el-table-column prop="belongs_to" label="标准所属" width="120" show-overflow-tooltip />
+      <el-table-column prop="standard_belongs_to" label="标准所属" width="120" show-overflow-tooltip />
+      <el-table-column label="SC/WG" width="140" show-overflow-tooltip>
+        <template #default="{ row }">
+          {{ [row.sc, row.wg].filter(v => v).join(' / ') || '-' }}
+        </template>
+      </el-table-column>
       <el-table-column label="地震相关度" width="120" align="center">
         <template #default="{ row }">
           <span class="stars">{{ getStars(row.earthquake_relevance) }}</span>
@@ -71,8 +76,9 @@
           </div>
           <div class="meta-pair">
             <span>首发编号: {{ doc.first_publish_code || '-' }}</span>
-            <span>所属: {{ doc.belongs_to || '-' }}</span>
+            <span>SC: {{ doc.sc || '-' }}</span>
           </div>
+          <div>WG: {{ doc.wg || '-' }}</div>
           <div>相关度: <span class="stars">{{ getStars(doc.earthquake_relevance) }}</span></div>
         </div>
         <div class="card-actions">
@@ -130,16 +136,19 @@
           <el-rate v-model="form.earthquake_relevance" :max="5" />
         </el-form-item>
         <el-row :gutter="20">
-          <el-col :xs="24" :sm="12">
+          <el-col :xs="24" :sm="8">
             <el-form-item label="标准所属">
               <el-input v-model="form.standard_belongs_to" placeholder="ISO/TC" />
             </el-form-item>
           </el-col>
-          <el-col :xs="24" :sm="12">
-            <el-form-item label="所属">
-              <el-select v-model="form.belongs_to" placeholder="选择所属" clearable style="width: 100%">
-                <el-option v-for="b in belongsToOptions" :key="b" :label="b" :value="b" />
-              </el-select>
+          <el-col :xs="24" :sm="8">
+            <el-form-item label="所属SC">
+              <el-input v-model="form.sc" placeholder="请输入所属SC" />
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="8">
+            <el-form-item label="所属WG">
+              <el-input v-model="form.wg" placeholder="请输入所属WG" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -199,7 +208,6 @@ import { getDocumentList, createDocument, updateDocument, deleteDocument } from 
 
 const typeOptions = ['IS', 'TS', 'PAS', 'TR', 'IWA', 'Guides']
 const stageOptions = ['PWI', 'NP', 'WD', 'CD', 'DIS', 'FDIS', 'IS']
-const belongsToOptions = ['SC', 'WG']
 
 const documents = ref([])
 const loading = ref(false)
@@ -223,7 +231,8 @@ const form = reactive({
   name: '',
   type: '',
   standard_belongs_to: 'ISO/TC',
-  belongs_to: '',
+  sc: '',
+  wg: '',
   summary: '',
   scope: '',
   publish_date: '',
@@ -268,7 +277,8 @@ function resetForm() {
   form.name = ''
   form.type = ''
   form.standard_belongs_to = 'ISO/TC'
-  form.belongs_to = ''
+  form.sc = ''
+  form.wg = ''
   form.summary = ''
   form.scope = ''
   form.publish_date = ''
@@ -294,7 +304,8 @@ function handleEdit(row) {
   form.name = row.name
   form.type = row.type
   form.standard_belongs_to = row.standard_belongs_to || 'ISO/TC'
-  form.belongs_to = row.belongs_to || ''
+  form.sc = row.sc || ''
+  form.wg = row.wg || ''
   form.summary = row.summary || ''
   form.scope = row.scope || ''
   form.publish_date = row.publish_date ? row.publish_date.substring(0, 10) : ''
@@ -325,7 +336,8 @@ async function handleSubmit() {
     formData.append('name', form.name)
     formData.append('type', form.type)
     formData.append('standard_belongs_to', form.standard_belongs_to)
-    formData.append('belongs_to', form.belongs_to)
+    formData.append('sc', form.sc)
+    formData.append('wg', form.wg)
     formData.append('summary', form.summary)
     formData.append('scope', form.scope)
     formData.append('publish_date', form.publish_date || '')
